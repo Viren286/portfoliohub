@@ -1,4 +1,5 @@
 import "server-only";
+import crypto from "node:crypto";
 import path from "node:path";
 
 function bool(v: string | undefined, fallback: boolean) {
@@ -8,11 +9,24 @@ function bool(v: string | undefined, fallback: boolean) {
 
 const isProd = process.env.NODE_ENV === "production";
 
+/**
+ * Session-signing secret. Prefer BETTER_AUTH_SECRET. If it isn't set, derive one from the
+ * database connection string (which contains a long random password that only the server
+ * knows), so a fresh Vercel + Neon deploy works without anyone typing a secret.
+ * Rotating the DB password then signs everyone out, which is acceptable.
+ */
+function authSecret(): string {
+  if (process.env.BETTER_AUTH_SECRET) return process.env.BETTER_AUTH_SECRET;
+  const seed = process.env.DATABASE_URL_UNPOOLED || process.env.DATABASE_URL;
+  if (!seed) return "";
+  return crypto.createHash("sha256").update(`portfoliohub-auth-secret-v1:${seed}`).digest("base64url");
+}
+
 /** Server-side configuration. Secrets never leave the server (no NEXT_PUBLIC_ prefix). */
 export const env = {
   isProd,
   appUrl: (process.env.APP_URL ?? process.env.BETTER_AUTH_URL ?? "http://localhost:3000").replace(/\/$/, ""),
-  authSecret: process.env.BETTER_AUTH_SECRET ?? "",
+  authSecret: authSecret(),
   databaseUrl: process.env.DATABASE_URL ?? "",
 
   /** Comma-separated founder emails. Admin access needs role=admin AND an email on this list. */
