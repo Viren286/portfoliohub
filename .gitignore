@@ -39,3 +39,9 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# app data (local deploys and uploads)
+/.data
+# generated prisma client
+/src/generated
+tests/out

@@ -1,0 +1,21 @@
+# Cloudflare Worker that serves all generated portfolios.
+# Deploy: cd worker && npm install && npx wrangler deploy
+name = "portfoliohub-sites"
+main = "src/index.ts"
+compatibility_date = "2026-10-01"
+
+# Serve every subdomain of your sites domain. The zone must be on Cloudflare.
+routes = [
+  { pattern = "*.portfoliohub.site/*", zone_name = "portfoliohub.site" }
+]
+
+[vars]
+SITES_DOMAIN = "portfoliohub.site"
+
+[[r2_buckets]]
+binding = "SITES"
+bucket_name = "portfoliohub-sites"
+
+[[kv_namespaces]]
+binding = "POINTERS"
+id = "REPLACE_WITH_YOUR_KV_NAMESPACE_ID"

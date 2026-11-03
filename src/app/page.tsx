@@ -1,69 +1,252 @@
-import Image from "next/image";
+import Link from "next/link";
+import { renderPortfolio } from "@/engine/generate";
+import { TEMPLATES } from "@/templates";
+import { SAMPLES } from "@/lib/samples";
+import { DEFAULT_PLANS } from "@/lib/plans";
+import { Logo } from "@/components/logo";
+import { ScaledFrame } from "@/components/scaled-frame";
+import { BrowserChrome } from "@/components/browser-chrome";
+import { Reveal } from "@/components/reveal";
+
+export const dynamic = "force-static";
+
+const COMING = [
+  "Dark Futuristic",
+  "Glassmorphism",
+  "Creative Designer",
+  "Corporate Professional",
+  "Interactive 3D",
+  "Animated",
+  "Elegant Monochrome",
+  "Cyberpunk",
+  "Modern Academic",
+];
+
+function samplePreview(slug: string) {
+  const s = SAMPLES[slug];
+  return renderPortfolio(s.data, slug, {}, { mode: "preview", appUrl: "https://portfoliohub.com", showBranding: false }).html;
+}
 
 export default function Home() {
+  const templates = Object.values(TEMPLATES).map((t) => ({ ...t, html: samplePreview(t.slug), url: SAMPLES[t.slug].url }));
+  const [minimal, developer, editorial] = templates;
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <div className="grain">
+      {/* ------------------------------------------------------------ nav */}
+      <header className="sticky top-0 z-40 border-b border-line/70 bg-paper/80 backdrop-blur-md">
+        <div className="mx-auto flex max-w-7xl items-center gap-8 px-6 py-3.5">
+          <Logo />
+          <nav className="ml-6 hidden items-center gap-7 text-sm text-ink-2 md:flex">
+            <a href="#templates" className="hover:text-ink">Templates</a>
+            <a href="#how" className="hover:text-ink">How it works</a>
+            <a href="#pricing" className="hover:text-ink">Pricing</a>
+          </nav>
+          <div className="ml-auto flex items-center gap-2">
+            <Link href="/sign-in" className="btn btn-sm text-ink-2 hover:text-ink">Sign in</Link>
+            <Link href="/sign-up" className="btn-ink btn-sm">Create your portfolio</Link>
+          </div>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+      </header>
+
+      {/* ------------------------------------------------------------ hero */}
+      <section className="relative overflow-hidden">
+        <div className="mx-auto grid max-w-7xl gap-14 px-6 pb-20 pt-16 lg:grid-cols-[1.05fr_1fr] lg:pt-24">
+          <div className="animate-rise">
+            <p className="eyebrow">Portfolio websites, generated</p>
+            <h1 className="display mt-5 text-[clamp(3.6rem,8.5vw,7.4rem)]">
+              Your work,
+              <br />
+              <em className="text-signal">published.</em>
+            </h1>
+            <p className="mt-7 max-w-xl text-lg leading-relaxed text-ink-2">
+              Fill in your details once. Pick a design. Get a live, fast, professionally designed website at{" "}
+              <span className="whitespace-nowrap rounded-md bg-paper-2 px-1.5 py-0.5 font-mono text-[0.92em] text-ink">you.portfoliohub.site</span>{" "}
+              in under a minute.
+            </p>
+            <div className="mt-9 flex flex-wrap items-center gap-3">
+              <Link href="/sign-up" className="btn-signal px-7 py-3.5 text-base">
+                Create your portfolio
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden><path d="M5 12h14m-6-6 6 6-6 6" /></svg>
+              </Link>
+              <a href="#templates" className="btn-ghost px-6 py-3.5 text-base">See the designs</a>
+            </div>
+            <ul className="mt-10 flex flex-wrap gap-x-7 gap-y-2 text-sm text-muted">
+              {["No code", "Free to start", "Live URL instantly", "Edit and republish anytime"].map((t) => (
+                <li key={t} className="flex items-center gap-2">
+                  <span className="size-1.5 rounded-full bg-signal" />
+                  {t}
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* stacked live previews */}
+          <div className="relative min-h-[420px] lg:min-h-[560px]" aria-label="Example portfolios generated by PortfolioHub">
+            <div className="absolute left-0 top-10 w-[72%] animate-float [--r:-3deg]" style={{ animationDelay: "-2s" }}>
+              <BrowserChrome url={editorial.url}>
+                <ScaledFrame html={editorial.html} title="Editorial template example" />
+              </BrowserChrome>
+            </div>
+            <div className="absolute right-0 top-0 w-[64%] animate-float [--r:2.5deg]" style={{ animationDelay: "-4s" }}>
+              <BrowserChrome url={developer.url} dark>
+                <ScaledFrame html={developer.html} title="Developer template example" />
+              </BrowserChrome>
+            </div>
+            <div className="absolute bottom-0 left-[16%] w-[62%] animate-float [--r:-1deg]">
+              <BrowserChrome url={minimal.url}>
+                <ScaledFrame html={minimal.html} title="Minimal template example" />
+              </BrowserChrome>
+            </div>
+          </div>
         </div>
-      </main>
+
+        {/* url marquee */}
+        <div className="border-y border-line bg-card/60 py-4">
+          <div className="flex w-max animate-marquee gap-10 whitespace-nowrap font-mono text-sm text-muted">
+            {[...Array(2)].flatMap((_, k) =>
+              ["ananya", "kabir", "meera", "rohan", "sana", "aditya", "isha", "farhan", "nikita", "dev", "tara", "arjun"].map((n) => (
+                <span key={`${k}-${n}`}>
+                  <span className="text-ink">{n}</span>.portfoliohub.site <span className="text-signal">●</span>
+                </span>
+              )),
+            )}
+          </div>
+        </div>
+      </section>
+
+      {/* ------------------------------------------------------------ pipeline */}
+      <section className="mx-auto max-w-7xl px-6 py-24" id="how">
+        <Reveal>
+          <p className="eyebrow">How it works</p>
+          <h2 className="display mt-4 max-w-3xl text-[clamp(2.4rem,5vw,4.2rem)]">From a form to a live website in three steps.</h2>
+        </Reveal>
+        <ol className="mt-14 grid gap-6 md:grid-cols-3">
+          {[
+            { n: "01", t: "Tell us about you", d: "Projects, experience, education, skills: add what you have and skip the rest. Upload a photo and your résumé." },
+            { n: "02", t: "Pick a design", d: "Preview your own content in every template. Tune colours, fonts, section order and animation." },
+            { n: "03", t: "Publish", d: "One click builds and deploys your site to its own URL. Edit later and republish; older versions are kept." },
+          ].map((s, i) => (
+            <Reveal as="li" key={s.n} delay={i * 90} className="card relative overflow-hidden p-8">
+              <span className="display text-6xl italic text-signal">{s.n}</span>
+              <h3 className="mt-6 text-xl font-semibold">{s.t}</h3>
+              <p className="mt-2 leading-relaxed text-ink-2">{s.d}</p>
+            </Reveal>
+          ))}
+        </ol>
+      </section>
+
+      {/* ------------------------------------------------------------ templates */}
+      <section id="templates" className="border-t border-line bg-ink py-24 text-paper">
+        <div className="mx-auto max-w-7xl px-6">
+          <Reveal className="flex flex-wrap items-end justify-between gap-6">
+            <div>
+              <p className="eyebrow">Templates</p>
+              <h2 className="display mt-4 max-w-2xl text-[clamp(2.4rem,5vw,4.2rem)]">Three distinct designs. Not one layout in three colours.</h2>
+            </div>
+            <p className="max-w-sm text-paper/60">Every template adapts to your content: empty sections disappear, projects without links still look finished.</p>
+          </Reveal>
+          <div className="mt-14 grid gap-8 lg:grid-cols-3">
+            {templates.map((t, i) => (
+              <Reveal key={t.slug} delay={i * 100} className="group">
+                <div className="overflow-hidden rounded-2xl border border-white/10 transition duration-500 group-hover:-translate-y-1 group-hover:border-white/25">
+                  <ScaledFrame html={t.html} title={`${t.name} template preview`} aspect={1.25} />
+                </div>
+                <div className="mt-5 flex items-start justify-between gap-4">
+                  <div>
+                    <h3 className="text-lg font-semibold">{t.name}</h3>
+                    <p className="mt-1 text-sm leading-relaxed text-paper/60">{t.description}</p>
+                  </div>
+                  <span className="badge shrink-0 bg-white/10 text-paper">{t.tier === "FREE" ? "Free" : "Pro"}</span>
+                </div>
+              </Reveal>
+            ))}
+          </div>
+          <div className="mt-16 border-t border-white/10 pt-8">
+            <p className="text-sm text-paper/50">In the studio next</p>
+            <ul className="mt-4 flex flex-wrap gap-2">
+              {COMING.map((c) => (
+                <li key={c} className="rounded-full border border-white/15 px-3.5 py-1.5 text-sm text-paper/70">{c}</li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      {/* ------------------------------------------------------------ features */}
+      <section className="mx-auto max-w-7xl px-6 py-24">
+        <Reveal>
+          <p className="eyebrow">Built properly</p>
+          <h2 className="display mt-4 max-w-3xl text-[clamp(2.4rem,5vw,4.2rem)]">A real website, not a page builder export.</h2>
+        </Reveal>
+        <div className="mt-14 grid gap-px overflow-hidden rounded-2xl border border-line bg-line md:grid-cols-3">
+          {[
+            ["Adapts to you", "No experience yet? No certifications? Those sections simply don't exist. Never an empty heading or a broken image."],
+            ["Your own address", "Every site gets its own subdomain on a separate domain, isolated from the platform for security."],
+            ["Versioned deploys", "Each publish is an immutable version. A failed publish never takes your live site down, and you can roll back."],
+            ["Fast and findable", "Static HTML on a global edge, responsive images, SEO metadata, sitemap, social cards and structured data."],
+            ["Safe by default", "Everything you type is escaped, uploads are re-encoded and checked, and sites ship a strict content security policy."],
+            ["Résumé included", "Upload a PDF résumé and your site gets a download button. Update it any time."],
+          ].map(([t, d], i) => (
+            <Reveal key={t} delay={(i % 3) * 80} className="bg-card p-8">
+              <h3 className="text-lg font-semibold">{t}</h3>
+              <p className="mt-2 leading-relaxed text-ink-2">{d}</p>
+            </Reveal>
+          ))}
+        </div>
+      </section>
+
+      {/* ------------------------------------------------------------ pricing */}
+      <section id="pricing" className="border-t border-line bg-paper-2/60 py-24">
+        <div className="mx-auto max-w-5xl px-6">
+          <Reveal className="text-center">
+            <p className="eyebrow">Pricing</p>
+            <h2 className="display mt-4 text-[clamp(2.4rem,5vw,4.2rem)]">Free while we&rsquo;re in beta.</h2>
+          </Reveal>
+          <div className="mt-14 grid gap-6 md:grid-cols-2">
+            <Reveal className="card p-8">
+              <h3 className="text-lg font-semibold">Free</h3>
+              <p className="mt-2"><span className="display text-5xl">₹0</span></p>
+              <ul className="mt-6 space-y-2.5 text-ink-2">
+                <li>{DEFAULT_PLANS.FREE.entitlements.maxPortfolios} portfolio</li>
+                <li>All free templates</li>
+                <li>yourname.portfoliohub.site</li>
+                <li>Full customization of colours, fonts and sections</li>
+                <li className="text-muted">Small &ldquo;Made with PortfolioHub&rdquo; badge</li>
+              </ul>
+              <Link href="/sign-up" className="btn-ink mt-8 w-full py-3">Start free</Link>
+            </Reveal>
+            <Reveal delay={100} className="card relative overflow-hidden border-ink p-8">
+              <span className="badge absolute right-6 top-6 bg-signal text-white">Coming soon</span>
+              <h3 className="text-lg font-semibold">Pro</h3>
+              <p className="mt-2"><span className="display text-5xl">₹{(DEFAULT_PLANS.PRO.pricePaise ?? 0) / 100}</span><span className="text-muted"> / month</span></p>
+              <ul className="mt-6 space-y-2.5 text-ink-2">
+                <li>Up to {DEFAULT_PLANS.PRO.entitlements.maxPortfolios} portfolios</li>
+                <li>Premium and 3D templates</li>
+                <li>Your own custom domain</li>
+                <li>No platform branding</li>
+                <li>Advanced animations</li>
+              </ul>
+              <button className="btn-ghost mt-8 w-full py-3" disabled>Join the waitlist after signup</button>
+            </Reveal>
+          </div>
+        </div>
+      </section>
+
+      {/* ------------------------------------------------------------ CTA */}
+      <section className="bg-signal text-white">
+        <div className="mx-auto flex max-w-7xl flex-col items-start justify-between gap-8 px-6 py-20 md:flex-row md:items-end">
+          <h2 className="display text-[clamp(2.8rem,7vw,6rem)]">Ship your portfolio <em>tonight.</em></h2>
+          <Link href="/sign-up" className="btn bg-ink px-8 py-4 text-base text-paper hover:bg-black">Create your portfolio</Link>
+        </div>
+      </section>
+
+      <footer className="border-t border-line">
+        <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-6 py-8 text-sm text-muted">
+          <Logo />
+          <p>© {new Date().getFullYear()} PortfolioHub. Built in India.</p>
+        </div>
+      </footer>
     </div>
   );
 }
