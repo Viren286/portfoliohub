@@ -12,7 +12,7 @@ export default async function ProfilePage(props: PageProps<"/dashboard/profile">
   const [form, files, portfolios, templates] = await Promise.all([
     loadProfileForm(user.id, user.name),
     db.uploadedFile.findMany({ where: { userId: user.id }, orderBy: { createdAt: "desc" } }),
-    db.portfolio.findMany({ where: { userId: user.id }, select: { template: { select: { slug: true } } }, take: 1 }),
+    db.portfolio.findMany({ where: { userId: user.id }, select: { id: true, template: { select: { slug: true } } }, orderBy: { createdAt: "asc" }, take: 1 }),
     db.template.findMany({ where: { isEnabled: true }, select: { slug: true, name: true }, orderBy: { createdAt: "asc" } }),
   ]);
   const fileMap = Object.fromEntries(
@@ -25,6 +25,7 @@ export default async function ProfilePage(props: PageProps<"/dashboard/profile">
       welcome={sp.welcome === "1"}
       templates={templates}
       previewTemplate={portfolios[0]?.template.slug ?? templates[0]?.slug ?? "minimal"}
+      next={portfolios[0] ? { href: `/dashboard/portfolios/${portfolios[0].id}`, label: "Publish changes" } : { href: "/dashboard/portfolios/new", label: "Pick a design" }}
     />
   );
 }

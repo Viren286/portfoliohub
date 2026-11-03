@@ -84,14 +84,16 @@ export function ProfileEditor({
   welcome,
   templates,
   previewTemplate,
+  next,
 }: {
   initial: ProfileForm;
   files: Files;
   welcome: boolean;
   templates: { slug: string; name: string }[];
   previewTemplate: string;
+  next: { href: string; label: string };
 }) {
-  const { register, control, handleSubmit, setValue, getValues, formState } = useForm<ProfileForm>({ defaultValues: initial });
+  const { register, control, handleSubmit, setValue, getValues, formState, reset } = useForm<ProfileForm>({ defaultValues: initial });
   const [files, setFiles] = useState<Files>(initialFiles);
   const [status, setStatus] = useState<{ tone: "ok" | "bad"; msg: string } | null>(null);
   const [saving, startSave] = useTransition();
@@ -113,11 +115,20 @@ export function ProfileEditor({
     return f?.id ?? null;
   };
 
-  const onSubmit = handleSubmit((values) =>
-    startSave(async () => {
-      const res = await saveProfileAction(values);
-      setStatus(res.ok ? { tone: "ok", msg: "Saved. Republish your portfolio to update the live site." } : { tone: "bad", msg: res.error });
-    }),
+  const onSubmit = handleSubmit(
+    (values) =>
+      startSave(async () => {
+        setStatus(null);
+        const res = await saveProfileAction(values);
+        if (res.ok) {
+          reset(values); // clears "unsaved changes"
+          setStatus({ tone: "ok", msg: "Saved. Your details are stored; publish to update your live site." });
+        } else setStatus({ tone: "bad", msg: res.error });
+      }),
+    () => {
+      setStatus({ tone: "bad", msg: "Your full name is required (top of the page)." });
+      document.getElementById("personal")?.scrollIntoView({ behavior: "smooth" });
+    },
   );
 
   // Warn before leaving with unsaved changes
@@ -309,11 +320,17 @@ export function ProfileEditor({
       </div>
 
       {/* sticky save bar */}
-      <div className="fixed inset-x-0 bottom-0 z-20 border-t border-line bg-paper/95 backdrop-blur">
-        <div className="mx-auto flex max-w-7xl items-center gap-4 px-6 py-3">
-          <div className="min-w-0 flex-1 text-sm">
-            {status ? (
-              <span className={status.tone === "ok" ? "text-ok" : "text-bad"} role="status">{status.msg}</span>
+      <div
+        className={`fixed inset-x-0 bottom-0 z-20 border-t backdrop-blur transition-colors ${
+          status?.tone === "ok" ? "border-ok/40 bg-ok/10" : status?.tone === "bad" ? "border-bad/40 bg-bad/10" : "border-line bg-paper/95"
+        }`}
+      >
+        <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-4 px-6 py-3">
+          <div className="min-w-0 flex-1 text-sm font-medium" role="status" aria-live="polite">
+            {saving ? (
+              <span className="text-ink-2">Saving…</span>
+            ) : status ? (
+              <span className={status.tone === "ok" ? "text-ok" : "text-bad"}>{status.tone === "ok" ? "✓ " : "⚠ "}{status.msg}</span>
             ) : formState.isDirty ? (
               <span className="text-warn">Unsaved changes</span>
             ) : (
@@ -321,7 +338,8 @@ export function ProfileEditor({
             )}
           </div>
           <Link href="/dashboard" className="btn-ghost">Back</Link>
-          <button className="btn-ink min-w-28" disabled={saving}>{saving ? <Spinner /> : "Save"}</button>
+          <button className="btn-ink min-w-28" disabled={saving}>{saving ? <Spinner /> : status?.tone === "ok" && !formState.isDirty ? "Saved ✓" : "Save"}</button>
+          {status?.tone === "ok" && !formState.isDirty && <Link href={next.href} className="btn-signal">{next.label} →</Link>}
         </div>
       </div>
     </form>
